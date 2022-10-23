@@ -1,39 +1,46 @@
 class Solution {
 public:
     string minWindow(string s, string t) {
-        int n = s.size();
-        int m = t.size();
-        if(m > n) return "";
-        array<int, 128> cnt = {};
-        int nz = 0; 
-        for (char ch : t) {
-            if (!cnt[ch]--) --nz;
+        if(t==""){
+            return "";
         }
-        
-        
-        for (int i = 0; i < size(t); ++i) {
-            if (!++cnt[s[i]]) ++nz;
+        unordered_map<char,int> um;
+        for(int i=0;i<t.length();i++){
+            um[t[i]]++;
         }
-        // Do we have a match already?
-        if (!nz) return s.substr(0, size(t));
-        
-        // Slide the window.
-        int start = -1;
-        int min_len = numeric_limits<int>::max();
-        for (int l = 0, r = size(t); r < size(s); ++r) {
-            if (!++cnt[s[r]]) ++nz;
-            // While we have a match, shrink the window.
-            while (!nz) {
-                int len = r - l + 1;
-                if (len < min_len) {
-                    start = l;
-                    min_len = len;
+        int need = um.size();
+        unordered_map <char,int> window;
+        int have = 0 ;
+        int minLen = INT_MAX;
+        int min_pos = -1;
+        int i = 0; 
+        int j = 0; 
+        char c;
+        string ans="";
+        while(j < s.length()){
+            c = s[j];
+            window[c]++;
+            
+            if(um.find(c)!=um.end()&&window[c]==um[c])
+                have ++;
+            
+            while(have == need){
+                if(j-i+1 < minLen){
+                    minLen = j-i+1;
+                    min_pos = i;
                 }
-                if (!cnt[s[l++]]--) --nz;
+                
+                window[s[i]]--;
+                if (um.find(s[i]) != um.end() && window[s[i]] < um[s[i]])
+                    have--;
+              
+                i++;
             }
+            j++;
         }
-        
-        return start != -1 ? s.substr(start, min_len) : "";
-        
+        if(minLen<INT_MAX)
+            ans = s.substr(min_pos,minLen);
+        return ans;
     }
+
 };
